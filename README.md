@@ -5,6 +5,16 @@ three static files and a `<script>` tag.
 
 **Live demo: https://aghasalim.github.io/Calculator_Dark_Theme/**
 
+## Where this came from
+
+This is one of my first projects — something I made as a kid. Back then it lived
+on Replit, and this repo never held much more than a link to it, so the code here
+is a rebuild rather than a restoration.
+
+I've come back to redesign it properly: a real parser instead of string tricks, a
+dark theme I'd actually ship, keyboard support, tests, and a live demo. The idea
+is the same one I had as a child. Everything under it is new.
+
 ## Features
 
 - **Operator precedence and parentheses** — `2 + 3 × 4` is `14`, not `20`. Unclosed
