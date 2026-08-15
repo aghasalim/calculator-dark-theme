@@ -28,6 +28,8 @@ is the same one I had as a child. Everything under it is new.
   announced to screen readers, and animations disabled under
   `prefers-reduced-motion`.
 - **Sensible errors** — dividing by zero says so instead of showing `Infinity`.
+- **Ten languages** — optional interface translation, pinned and integrity-checked.
+  See [Translation](#translation).
 
 ## Behaviour worth knowing
 
@@ -65,6 +67,48 @@ bignum one.
 
 Expressions are parsed by a hand-written recursive-descent parser, so user input
 is never handed to the JavaScript interpreter.
+
+## Translation
+
+The picker under the keypad switches the interface between ten languages, using
+[translate.js](https://github.com/xnx3/translate) (MIT).
+
+**What gets translated:** the page title, meta description, the keyboard hint,
+and the error messages. That is the entire prose surface of this app.
+
+**What never gets translated:** the display, the keypad, and the physical key
+names in the hint. These carry `class="ignore"`. This is not a nicety — the
+library classifies `×` (U+00D7) and `÷` (U+00F7) as letters, because they sit
+inside its `[À-ÿ]` range, so an unfenced display would send fragments of your
+arithmetic to a translation engine. Its text handling also turns `1e+21` into
+`1 e +21` even when the translation is identical to the input, which would
+corrupt any result large enough to render in exponential notation.
+
+Three deliberate choices behind the integration:
+
+- **Pinned, with Subresource Integrity.** Loaded from an immutable cdnjs version
+  with a `sha384` hash. The vendor's own URL, `res.zvo.cn/translate/translate.js`,
+  is unversioned and rewritten in place, so it cannot carry an `integrity`
+  attribute at all.
+- **No DOM observer.** `translate.listener.start()` is deliberately not called.
+  It exists to catch text added after load, but every dynamic node here is
+  numeric output that must not be touched. Error strings are instead rendered
+  into the page up front and read back by `app.js`, so they get translated on
+  load without an observer running on every keypress.
+- **Fails safe.** If the CDN is unreachable or the hash does not match, the
+  script is blocked, the picker stays hidden, and the calculator is unaffected.
+  Translation is strictly additive.
+
+**What leaves your browser:** switching language sends seven UI strings to
+`edge.microsoft.com` (Microsoft Translator). Nothing you type is ever sent — the
+display is excluded before any request is made. The library also pings
+`api.translate.zvo.cn` on page load even on the `client.edge` channel; a
+`connect-src` CSP in `index.html` blocks that. This is why three CSP errors
+appear in the console on load — they are expected.
+
+Note for anyone reusing this: `class="notranslate"` and the HTML5 `translate="no"`
+attribute have **no effect** in this library (verified against the shipped build).
+Exclusion is `class="ignore"` only, and it is inherited by the subtree.
 
 ## Running it
 

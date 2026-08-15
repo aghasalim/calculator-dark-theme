@@ -3,6 +3,12 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<!-- translate.js pings api.translate.zvo.cn + america.api.translate.zvo.cn on every
+     page load, even on the client.edge channel that is documented as not needing
+     them. This blocks those calls; translation still works, because the actual
+     request goes to edge.microsoft.com. Cost: three CSP errors in the console
+     on load, which are expected and safe to ignore. -->
+<meta http-equiv="Content-Security-Policy" content="connect-src 'self' https://edge.microsoft.com;">
 <meta name="theme-color" content="#0a0b0e">
 <meta name="description" content="A dark-theme calculator with operator precedence, parentheses, and full keyboard support. No dependencies.">
 <title>Calculator — Dark Theme</title>
@@ -14,10 +20,13 @@
 <main class="calculator" aria-label="Calculator">
 
   <section class="display">
-    <div class="display__history" id="history" aria-hidden="true"></div>
-    <div class="display__value" id="expr" aria-label="Current expression">0</div>
+    <div class="display__history ignore" id="history" aria-hidden="true"></div>
+    <div class="display__value ignore" id="expr" aria-label="Current expression">0</div>
     <div class="display__row">
-      <div class="display__preview" id="preview" aria-hidden="true"></div>
+      <div class="display__row-text" aria-hidden="true">
+        <span class="display__preview ignore" id="preview"></span>
+        <span class="display__message" id="message"></span>
+      </div>
       <button type="button" class="backspace" data-action="back" data-keys="Backspace" aria-label="Backspace">
         <svg viewBox="0 0 24 24" width="20" height="20" aria-hidden="true" focusable="false">
           <path fill="currentColor" d="M9 4h11a2 2 0 0 1 2 2v12a2 2 0 0 1-2 2H9a2 2 0 0 1-1.5-.68l-5.3-6a2 2 0 0 1 0-2.64l5.3-6A2 2 0 0 1 9 4zm2.4 4L10 9.4 12.6 12 10 14.6 11.4 16 14 13.4 16.6 16 18 14.6 15.4 12 18 9.4 16.6 8 14 10.6 11.4 8z"/>
@@ -26,7 +35,10 @@
     </div>
   </section>
 
-  <div class="keypad">
+  <!-- "ignore" is translate.js's built-in never-translate class, inherited by the
+       whole subtree. The keypad is digits and operator glyphs — translating it
+       would corrupt the calculator. -->
+  <div class="keypad ignore">
     <button type="button" class="key key--fn"   data-action="clear"   data-keys="Escape Delete" aria-label="All clear">AC</button>
     <button type="button" class="key key--fn"   data-action="paren"   data-keys="( )"           aria-label="Parentheses">()</button>
     <button type="button" class="key key--fn"   data-action="percent" data-keys="%"             aria-label="Percent">%</button>
@@ -57,9 +69,69 @@
 
 <p class="hint">Keyboard works too — digits, <kbd>+</kbd> <kbd>-</kbd> <kbd>*</kbd> <kbd>/</kbd>, <kbd>Enter</kbd>, <kbd>Backspace</kbd>, <kbd>Esc</kbd></p>
 
-<div class="sr-only" id="announce" role="status" aria-live="polite"></div>
+<div class="langbar ignore">
+  <select id="lang" hidden aria-label="Language">
+    <option value="english">English</option>
+    <option value="azerbaijani">Azərbaycan</option>
+    <option value="turkish">Türkçe</option>
+    <option value="dutch">Nederlands</option>
+    <option value="french">Français</option>
+    <option value="deutsch">Deutsch</option>
+    <option value="spanish">Español</option>
+    <option value="russian">Русский</option>
+    <option value="arabic">العربية</option>
+    <option value="chinese_simplified">简体中文</option>
+  </select>
+</div>
+
+<div class="sr-only ignore" id="announce" role="status" aria-live="polite"></div>
+
+<!-- Error strings live in the page so they get translated on load with
+     everything else. app.js reads them back instead of hardcoding English,
+     which avoids needing translate.js's DOM observer at runtime. -->
+<div class="sr-only" id="strings" aria-hidden="true">
+  <span data-string="Cannot divide by zero">Cannot divide by zero</span>
+  <span data-string="Result is out of range">Result is out of range</span>
+  <span data-string="Invalid expression">Invalid expression</span>
+  <span data-string="Result">Result</span>
+</div>
 
 <script src="engine.js"></script>
 <script src="app.js"></script>
+
+<!--
+  Optional translation layer. Notes on the choices here:
+  - Pinned to an immutable version on cdnjs with SRI. The vendor's own URL
+    (res.zvo.cn/translate/translate.js) is unversioned and rewritten in place,
+    so it cannot be integrity-checked.
+  - No translate.listener.start(): its DOM observer would run on every keypress,
+    and every dynamic node in this app is numeric output that must not change.
+  - class="notranslate" and translate="no" are NOT supported by this library
+    (verified against the shipped build) — exclusion is class="ignore" only.
+-->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/translate.js/4.0.0/translate.min.js"
+        integrity="sha384-B5hwYQH9C5z0qPkxL7uG0WEuQQRmnBzZuJMopnFeIJcg5Txz45XKfq0fBA+vM+o2"
+        crossorigin="anonymous" defer></script>
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+  // CDN blocked, offline, or SRI mismatch: the picker stays hidden and the
+  // calculator is untouched. Translation is strictly additive.
+  if (!window.translate) return;
+
+  translate.ignore.tag.push('kbd');        // physical key names, not prose
+  translate.language.setLocal('english');  // auto-detect only covers zh/ja/ko
+  translate.language.setDefaultTo('english');
+  translate.service.use('client.edge');
+  translate.selectLanguageTag.show = false; // we render our own picker
+  translate.execute();
+
+  var select = document.getElementById('lang');
+  select.value = translate.language.getCurrent() || 'english';
+  select.hidden = false;
+  select.addEventListener('change', function () {
+    translate.changeLanguage(select.value);
+  });
+});
+</script>
 </body>
 </html>

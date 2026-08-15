@@ -14,6 +14,7 @@
   var historyEl = document.getElementById('history');
   var exprEl = document.getElementById('expr');
   var previewEl = document.getElementById('preview');
+  var messageEl = document.getElementById('message');
   var announceEl = document.getElementById('announce');
 
   var OPERATORS = '+−×÷';
@@ -23,6 +24,14 @@
   var history = '';
   var evaluated = false; // last action was '=', so the display holds a result
   var pendingError = null;
+
+  // Error text is rendered into #strings in the HTML, so whatever translated it
+  // on page load has already run. Falls back to the English argument when the
+  // element is missing (or nothing translated it), so this is safe on its own.
+  function localize(text) {
+    var node = document.querySelector('#strings [data-string="' + text + '"]');
+    return node && node.textContent ? node.textContent : text;
+  }
 
   function last() {
     return expr.slice(-1);
@@ -150,7 +159,7 @@
       history = E.formatExpression(source) + ' =';
       expr = String(parseFloat(value.toPrecision(PRECISION)));
       evaluated = true;
-      announceEl.textContent = 'Result ' + E.formatNumber(value);
+      announceEl.textContent = localize('Result') + ' ' + E.formatNumber(value);
     }
   };
 
@@ -188,14 +197,15 @@
       ? E.formatNumber(Number(expr))
       : expr === '' ? '0' : E.formatExpression(expr);
     previewEl.textContent = preview();
-    previewEl.classList.remove('is-error');
+    messageEl.textContent = '';
     fit(exprEl);
   }
 
   function showError(message) {
-    previewEl.textContent = message;
-    previewEl.classList.add('is-error');
-    announceEl.textContent = message;
+    var text = localize(message);
+    previewEl.textContent = '';
+    messageEl.textContent = text;
+    announceEl.textContent = text;
     calcEl.classList.remove('is-error');
     void calcEl.offsetWidth; // restart the shake
     calcEl.classList.add('is-error');
