@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#0a0b0e">
+<meta name="description" content="A dark-theme calculator with operator precedence, parentheses, and full keyboard support. No dependencies.">
+<title>Calculator — Dark Theme</title>
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='7' fill='%2314161c'/%3E%3Crect x='6' y='6' width='20' height='6' rx='2' fill='%23ff9f0a'/%3E%3Cg fill='%23f4f6fb'%3E%3Ccircle cx='9.5' cy='18' r='2'/%3E%3Ccircle cx='16' cy='18' r='2'/%3E%3Ccircle cx='22.5' cy='18' r='2'/%3E%3Ccircle cx='9.5' cy='24' r='2'/%3E%3Ccircle cx='16' cy='24' r='2'/%3E%3C/g%3E%3Ccircle cx='22.5' cy='24' r='2' fill='%23ff9f0a'/%3E%3C/svg%3E">
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<main class="calculator" aria-label="Calculator">
+
+  <section class="display">
+    <div class="display__history" id="history" aria-hidden="true"></div>
+    <div class="display__value" id="expr" aria-label="Current expression">0</div>
+    <div class="display__row">
+      <div class="display__preview" id="preview" aria-hidden="true"></div>
+      <button type="button" class="backspace" data-action="back" data-keys="Backspace" aria-label="Backspace">
+        <svg viewBox="0 0 24 24" width="20" height="20" aria-hidden="true" focusable="false">
+          <path fill="currentColor" d="M9 4h11a2 2 0 0 1 2 2v12a2 2 0 0 1-2 2H9a2 2 0 0 1-1.5-.68l-5.3-6a2 2 0 0 1 0-2.64l5.3-6A2 2 0 0 1 9 4zm2.4 4L10 9.4 12.6 12 10 14.6 11.4 16 14 13.4 16.6 16 18 14.6 15.4 12 18 9.4 16.6 8 14 10.6 11.4 8z"/>
+        </svg>
+      </button>
+    </div>
+  </section>
+
+  <div class="keypad">
+    <button type="button" class="key key--fn"   data-action="clear"   data-keys="Escape Delete" aria-label="All clear">AC</button>
+    <button type="button" class="key key--fn"   data-action="paren"   data-keys="( )"           aria-label="Parentheses">()</button>
+    <button type="button" class="key key--fn"   data-action="percent" data-keys="%"             aria-label="Percent">%</button>
+    <button type="button" class="key key--op"   data-action="op" data-value="÷" data-keys="/"   aria-label="Divide">÷</button>
+
+    <button type="button" class="key" data-action="digit" data-value="7" data-keys="7">7</button>
+    <button type="button" class="key" data-action="digit" data-value="8" data-keys="8">8</button>
+    <button type="button" class="key" data-action="digit" data-value="9" data-keys="9">9</button>
+    <button type="button" class="key key--op" data-action="op" data-value="×" data-keys="* x"   aria-label="Multiply">×</button>
+
+    <button type="button" class="key" data-action="digit" data-value="4" data-keys="4">4</button>
+    <button type="button" class="key" data-action="digit" data-value="5" data-keys="5">5</button>
+    <button type="button" class="key" data-action="digit" data-value="6" data-keys="6">6</button>
+    <button type="button" class="key key--op" data-action="op" data-value="−" data-keys="-"     aria-label="Subtract">−</button>
+
+    <button type="button" class="key" data-action="digit" data-value="1" data-keys="1">1</button>
+    <button type="button" class="key" data-action="digit" data-value="2" data-keys="2">2</button>
+    <button type="button" class="key" data-action="digit" data-value="3" data-keys="3">3</button>
+    <button type="button" class="key key--op" data-action="op" data-value="+" data-keys="+"     aria-label="Add">+</button>
+
+    <button type="button" class="key key--fn" data-action="sign" data-keys="n"                  aria-label="Toggle sign">±</button>
+    <button type="button" class="key" data-action="digit" data-value="0" data-keys="0">0</button>
+    <button type="button" class="key" data-action="dot"   data-keys=". ,"                       aria-label="Decimal point">.</button>
+    <button type="button" class="key key--equals" data-action="equals" data-keys="Enter ="      aria-label="Equals">=</button>
+  </div>
+
+</main>
+
+<p class="hint">Keyboard works too — digits, <kbd>+</kbd> <kbd>-</kbd> <kbd>*</kbd> <kbd>/</kbd>, <kbd>Enter</kbd>, <kbd>Backspace</kbd>, <kbd>Esc</kbd></p>
+
+<div class="sr-only" id="announce" role="status" aria-live="polite"></div>
+
+<script src="engine.js"></script>
+<script src="app.js"></script>
+</body>
+</html>
