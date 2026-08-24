@@ -5,6 +5,12 @@ three static files and a `<script>` tag.
 
 **Live demo: https://aghasalim.github.io/Calculator_Dark_Theme/**
 
+<p align="center">
+  <img src="docs/calculator.png" alt="the calculator showing 2 + 3 x 4 = 14" width="380">
+</p>
+
+<p align="center"><sub>Precedence is the point: <code>2 + 3 × 4</code> is 14, not 20.</sub></p>
+
 ## Where this came from
 
 This is one of my first projects — something I made as a kid. Back then it lived
