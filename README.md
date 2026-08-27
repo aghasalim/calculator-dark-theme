@@ -3,7 +3,7 @@
 A dark-theme calculator that runs in the browser. No dependencies, no build step
 three static files and a`<script>` tag.
 
-**Live demo: https://aghasalim.github.io/Calculator_Dark_Theme/**
+**Live demo: https://aghasalim.github.io/calculator-dark-theme/**
 
 <p align="center">
   <img src="docs/calculator.png" alt="the calculator showing 2 + 3 x 4 = 14" width="380">
