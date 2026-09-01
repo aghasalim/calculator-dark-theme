@@ -1,0 +1,65 @@
+name: verify
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+
+jobs:
+  engine:
+    name: engine self check
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - run: node test.js
+
+  differential:
+    name: differential verification
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+
+      # gcc, go, cargo and sqlite3 are already on the runner. R is not.
+      - name: Install R if the runner does not have it
+        run: |
+          command -v Rscript >/dev/null 2>&1 || \
+            sudo apt-get install -y --no-install-recommends r-base-core
+
+      - name: Show what is available
+        run: |
+          node --version
+          cc --version | head -1
+          go version
+          cargo --version
+          sqlite3 --version
+          Rscript --version 2>&1 | head -1
+
+      - name: Verify
+        run: ./verify/verify.sh
+
+      # A check that cannot fail is not a check. Break the shared corpus, and
+      # every language that reads it has to reject the repository.
+      - name: The verification must reject a corrupted corpus
+        run: |
+          set -u
+          cp verify/cases.tsv /tmp/cases.tsv.bak
+          sed -i '1s/1.4000000000000000e+1/1.5000000000000000e+1/' verify/cases.tsv
+          head -1 verify/cases.tsv
+          if ./verify/verify.sh; then
+            echo "FAIL: the corpus says 2+3x4 is 15 and nothing objected"
+            cp /tmp/cases.tsv.bak verify/cases.tsv
+            exit 1
+          fi
+          echo "good: the corrupted corpus was rejected"
+          cp /tmp/cases.tsv.bak verify/cases.tsv
+          git diff --exit-code -- verify/cases.tsv
+
+      - name: And pass again once it is restored
+        run: ./verify/verify.sh

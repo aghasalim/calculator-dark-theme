@@ -166,6 +166,49 @@ node test.js
 Covers precedence, associativity, parentheses, unary signs, percent, division by
 zero, malformed input, and number formatting. No test framework.
 
+## Verifying it in six languages
+
+`test.js` compares the engine against values I typed in by hand, and the figure
+above is drawn by running the engine, so if the engine were wrong about
+precedence both of them would agree with it and say so confidently. One
+implementation checking itself is not a check.
+
+So the grammar is implemented again, from scratch, in C, in Rust and in Go, and
+the same expressions are handed to two parsers written by other people entirely,
+SQLite's and R's. All of them read one shared corpus, `verify/cases.tsv`: 52
+hand written expressions, each with the value `engine.js` produces for it,
+written as a 17 significant digit double so it round-trips exactly. An error in
+`engine.js` would have to be reproduced identically in five unrelated parsers to
+survive.
+
+```bash
+./verify/verify.sh
+```
+
+| Language | What it recomputes | Measured agreement |
+|---|---|---|
+| JavaScript | the corpus values, straight from `engine.js` | 52 of 52, exact, 0.0e+00 |
+|`verify/eval.c` | tokenizer, parser and evaluator written again in C | 52 of 52, exact, 0.0e+00 |
+|`verify/fuzz` (Rust) | a third independent parser, and the fuzz corpus | 52 of 52, exact, 0.0e+00 |
+|`verify/gocheck` (Go) | corpus structure, and `formatNumber` written again | 52 rows, 7 published display strings, exact |
+|`verify/precedence.sql` | SQLite's own parser on precedence and associativity | 26 of 26, exact, 0.0e+00 |
+|`verify/verify.R` | R's own parser on everything without a percent | 46 of 46, exact, 0.0e+00, 6 skipped |
+| Fuzz, three ways | 200,000 random expressions from a seeded xorshift | 200,000 of 200,000, exact, 0.0e+00 |
+
+The fuzz is the part that finds what I did not think of. Rust generates random
+expressions from the grammar, evaluates them, and JavaScript and C then have to
+land on the same double for every one, bit for bit. Of the 200,000 generated at
+seed 20240901, 7,386 are refused (division by zero or a result out of range),
+and all three agree on which ones those are.
+
+Three things are deliberately not checked everywhere. SQLite does not see the
+percent cases, because `%` is modulo in SQL, and its integer literals are
+written with a decimal point because SQL integer division truncates. R does not
+see them either, because `%...%` is R's own operator syntax. And R compares
+printed forms rather than parsed doubles: R's string to double conversion is a
+unit in the last place off on a 17 digit decimal, which C and JavaScript get
+right, and that is a fact about R rather than about this calculator.
+
 ## Licence
 
 MIT
