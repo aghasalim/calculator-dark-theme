@@ -165,8 +165,9 @@ node test.js
 
 Covers precedence, associativity, parentheses, unary signs, percent, division by
 zero, malformed input, and number formatting. No test framework. The published
-values are recomputed independently by the checkers in `verify/`, and CI fails
-the build if any of them disagree.
+values are recomputed independently by the checkers in `verify/`, which all read
+one shared corpus of 52 hand written expressions in `verify/cases.tsv`, and CI
+fails the build if any of them disagree.
 
 ## Licence
 
