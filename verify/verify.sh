@@ -90,6 +90,8 @@ run "Rust, the grammar written a third time"     cargo   check_rust
 run "Go, corpus structure and the display path"  go      check_go
 run "SQL, SQLite's own precedence"               sqlite3 check_sql
 run "R, R's own parser"                          Rscript Rscript verify/verify.R "$root"
+run "Python, Python's own parser"                python3 python3 verify/verify.py "$root"
+run "Ruby, Ruby's own parser"                    ruby    ruby verify/verify.rb "$root"
 run "Fuzz, JavaScript against C against Rust"    node    check_fuzz
 
 printf '\n%s\n' "----------------------------------------"
