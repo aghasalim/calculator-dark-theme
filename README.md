@@ -126,18 +126,20 @@ corrupt any result large enough to render in exponential notation.
 
 Three deliberate choices behind the integration:
 
-- **Pinned, with Subresource Integrity.** Loaded from an immutable cdnjs version
-  with a `sha384` hash. The vendor's own URL, `res.zvo.cn/translate/translate.js`,
-  is unversioned and rewritten in place, so it cannot carry an `integrity`
-  attribute at all.
-- **No DOM observer.** `translate.listener.start()` is deliberately not called.
-  It exists to catch text added after load, but every dynamic node here is
-  numeric output that must not be touched. Error strings are instead rendered
-  into the page up front and read back by `app.js`, so they get translated on
-  load without an observer running on every keypress.
-- **Fails safe.** If the CDN is unreachable or the hash does not match, the
-  script is blocked, the picker stays hidden, and the calculator is unaffected.
-  Translation is strictly additive.
+**Pinned, with Subresource Integrity.** Loaded from an immutable cdnjs version
+with a `sha384` hash. The vendor's own URL, `res.zvo.cn/translate/translate.js`,
+is unversioned and rewritten in place, so it cannot carry an `integrity`
+attribute at all.
+
+**No DOM observer.** `translate.listener.start()` is deliberately not called.
+It exists to catch text added after load, but every dynamic node here is
+numeric output that must not be touched. Error strings are instead rendered
+into the page up front and read back by `app.js`, so they get translated on
+load without an observer running on every keypress.
+
+**Fails safe.** If the CDN is unreachable or the hash does not match, the
+script is blocked, the picker stays hidden, and the calculator is unaffected.
+Translation is strictly additive.
 
 **What leaves your browser:** switching language sends seven UI strings to
 `edge.microsoft.com` (Microsoft Translator). Nothing you type is ever sent, the
