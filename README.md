@@ -65,7 +65,7 @@ calls `term`, so anything `term` parses binds tighter. That is why `2+3×4` is 1
 - **Accessible**: real buttons, labelled operators, visible focus rings, results
   announced to screen readers, and animations disabled under
 `prefers-reduced-motion`.
-- **Sensible errors**: dividing by zero gives an error, not `Infinity`.
+- **Sensible errors**: dividing by zero gives an error message.
 - **Ten languages**: optional interface translation, pinned and integrity-checked.
   See [Translation](#translation).
 
@@ -79,8 +79,7 @@ is the same everywhere it appears, which is the point.
 Results carry 12 significant digits. That is what hides binary float
 noise: `0.1 + 0.2` displays as `0.3`, not `0.30000000000000004`. The
 cost is that results beyond 12 digits are rounded: `123456789 × 987654321` shows as
-`121,932,631,113,000,000`. This is a double-precision calculator, not a
-bignum one.
+`121,932,631,113,000,000`. This is a double-precision calculator.
 
 ## Layout
 
