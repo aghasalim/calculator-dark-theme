@@ -7,6 +7,7 @@ var engine = require('./engine.js');
 var evaluate = engine.evaluate;
 var formatNumber = engine.formatNumber;
 var formatExpression = engine.formatExpression;
+var backspace = engine.backspace;
 
 // --- arithmetic and precedence -------------------------------------------
 assert.strictEqual(evaluate('1+2'), 3);
@@ -52,5 +53,17 @@ assert.strictEqual(formatNumber(NaN), 'Error');
 assert.strictEqual(formatExpression('1234+5'), '1,234 + 5');
 assert.strictEqual(formatExpression('(−12)'), '(−12)', 'unary sign stays tight');
 assert.strictEqual(formatExpression('2×(3+4)'), '2 × (3 + 4)');
+assert.strictEqual(formatExpression('1e+21×2'), '1e+21 × 2', 'the exponent sign is not an operator');
+
+// --- backspace --------------------------------------------------------------
+assert.strictEqual(backspace('12+3'), '12+');
+assert.strictEqual(backspace(''), '');
+// Deleting one character of 1e+21 leaves 1e+2, which reads as 100.
+assert.strictEqual(backspace('1e+21'), '', 'an exponential number goes as a whole');
+assert.strictEqual(backspace('−1e+21'), '');
+assert.strictEqual(backspace('2.5e-7'), '');
+assert.strictEqual(backspace('1e+21×2'), '1e+21×');
+assert.strictEqual(backspace('1e+21×'), '1e+21');
+assert.strictEqual(backspace('2×1e+21'), '2×');
 
 console.log('all engine checks passed');

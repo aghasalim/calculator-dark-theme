@@ -137,7 +137,7 @@
 
     back: function () {
       continueFromResult();
-      expr = expr.slice(0, -1);
+      expr = E.backspace(expr);
     },
 
     clear: function () {
