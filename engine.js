@@ -162,8 +162,17 @@
     return group(out);
   }
 
+  // Backspace drops one character, except inside an exponential number such as
+  // a result of 1e+21: dropping its last digit would leave 1e+2, which is 100.
+  // The whole number goes instead.
+  function backspace(expr) {
+    var exp = expr.match(/(^[-−])?\d+(?:\.\d*)?e[+-]?\d*$/);
+    return exp ? expr.slice(0, expr.length - exp[0].length) : expr.slice(0, -1);
+  }
+
   return {
     evaluate: evaluate,
+    backspace: backspace,
     formatNumber: formatNumber,
     formatExpression: formatExpression,
     tokenize: tokenize
